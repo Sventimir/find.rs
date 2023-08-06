@@ -4,6 +4,7 @@ use std::collections::VecDeque;
 use std::env;
 use std::fs;
 use data::file::{File, DirQueue};
+use data::filter::{Filter, DEFAULT};
 
 
 fn main() {
@@ -13,10 +14,11 @@ fn main() {
     Some(path) => path,
   };
   let init = File::new(path.into());
+  let f: Filter = DEFAULT;
   if init.meta.is_dir() {
     let d = fs::read_dir(path).expect("Could not read directory");
     let q = DirQueue { queue : VecDeque::from(vec![d]) };
-    for name in q.filter_map(File::filter_and_format) {
+    for name in q.filter_map(|p| f.apply(p)) {
       println!("{}", name);
     }
   } else {
